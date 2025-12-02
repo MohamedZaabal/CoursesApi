@@ -1,4 +1,5 @@
-﻿using CoursesApi.Authorization;
+﻿using System.Security.Claims;
+using CoursesApi.Authorization;
 using CoursesApi.Filters;
 using CoursesApi.Models;
 using CoursesApi.Services.Interface;
@@ -44,8 +45,10 @@ namespace CoursesApi.Controllers
         [HttpPost]
         [Authorize(Roles = "Instructor")]
         [CheckPermission("Course.Create")]
-        public ActionResult<Course> Create(Course course)
+        public ActionResult<Course> Create([FromBody]Course course)
         {
+            var instructorId=User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            course.InstructorId = instructorId;
             var newCourse=_service.Create(course);
             return CreatedAtAction(nameof(GetById), new { id = newCourse.Id }, newCourse);
         }

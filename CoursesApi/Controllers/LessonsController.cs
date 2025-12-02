@@ -20,13 +20,13 @@ namespace CoursesApi.Controllers
         [HttpGet]
         public ActionResult<List<Lesson>> GetLessons(int courseId)
         {
-            return Ok(_lessonService.GetLessonByCourse(courseId));
+            return Ok(_lessonService.GetLessonsByCourse(courseId));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Lesson> GetLesson(int courseId, int id)
+        public  async Task<ActionResult<Lesson>> GetLesson(int courseId, int id)
         {
-            var lesson = _lessonService.GetById(id);
+            var lesson =  await _lessonService.GetByIdAsync(id);
             if (lesson == null || lesson.CourseId != courseId) return NotFound();
              
             return Ok(lesson);

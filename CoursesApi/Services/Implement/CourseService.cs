@@ -1,55 +1,59 @@
-﻿using CoursesApi.Models;
+﻿using CoursesApi.Data_;
+using CoursesApi.Models;
 using CoursesApi.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
-namespace CoursesApi.Services.Implement
+public class CourseService : ICourseService
 {
-    public class CourseService : ICourseService
+    private readonly ApplicationDbContext _context;
+
+    public CourseService(ApplicationDbContext context)
     {
-        private readonly List<Course> _courses=new();
-        private int _nextId = 1;
+        _context = context;
+    }
 
-      
-        public Course Create(Course course)
-        {
-           course.Id= _nextId++;
-            _courses.Add(course);
-            return course;
-        }
+    public List<Course> GetAll()
+    {
+        return _context.Courses
+            .Include(c => c.Lessons)
+            .ToList();
+    }
 
-        public bool Delete(int id)
-        {
-           var course = GetById(id);
-            if (course == null) return false;
+    public Course? GetById(int id)
+    {
+        return _context.Courses
+            .Include(c => c.Lessons) 
+            .FirstOrDefault(x => x.Id == id);
+    }
 
-            _courses.Remove(course);
-            return true;
-            
-        }
+    public Course Create(Course course)
+    {
+        _context.Courses.Add(course);
+        _context.SaveChanges(); 
+        return course;
+    }
 
-        public List<Course> GetAll()
-        {
-          return _courses;
-        }
+    public Course? Update(int id, Course updated)
+    {
+        var course = _context.Courses.Find(id);
+        if (course == null) return null;
 
-        public Course? GetById(int id)
-        {
-            return _courses.FirstOrDefault(x=>x.Id == id);
-        }
+        
+        course.Title = updated.Title;
+        course.Description = updated.Description;
+        course.InstructorId = updated.InstructorId;
 
-        public Course Update(int id, Course updated)
-        {
-            var course= GetById(id);
-            if (course == null) return null;
-            //map
-            course.Title= updated.Title;
-            course.Description= updated.Description;
-            course.InstructorId= updated.InstructorId;
-           return course;
-        }
+        _context.SaveChanges();
+        return course;
+    }
 
-        // عشان اجرب ال ميدل وير
+    public bool Delete(int id)
+    {
+        var course = _context.Courses.Find(id);
+        if (course == null) return false;
 
-       
-
+        _context.Courses.Remove(course);
+        _context.SaveChanges();
+        return true;
     }
 }

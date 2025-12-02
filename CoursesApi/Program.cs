@@ -53,8 +53,8 @@ namespace CoursesApi
 
             #region Dependency injection 
 
-            builder.Services.AddSingleton<ICourseService, CourseService>();
-            builder.Services.AddSingleton<ILessonService, LessonService>();
+            builder.Services.AddScoped<ICourseService, CourseService>();
+            builder.Services.AddScoped<ILessonService, LessonService>();
             #endregion
 
             #region ActionFilter
